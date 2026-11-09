@@ -1,0 +1,34 @@
+#!/bin/bash
+set -eu
+export DISPLAY=:8 LANG=zh_CN.UTF-8
+export XDG_CONFIG_HOME="$HOME/.config/y900-xfce-gpu"
+export XDG_CACHE_HOME="$HOME/.cache/y900-xfce-gpu"
+export XDG_RUNTIME_DIR=/tmp/runtime-y900-xfce-gpu
+export XDG_CURRENT_DESKTOP=XFCE XDG_SESSION_DESKTOP=xfce XDG_SESSION_TYPE=x11
+export GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx SDL_IM_MODULE=fcitx
+export PULSE_SERVER=tcp:127.0.0.1:4713 GDK_BACKEND=x11 NO_AT_BRIDGE=1
+export GALLIUM_DRIVER=virpipe VTEST_SOCKET_NAME=/tmp/y900-gpu-vtest
+unset LIBGL_ALWAYS_SOFTWARE MESA_GL_VERSION_OVERRIDE MESA_GLSL_VERSION_OVERRIDE MESA_LOADER_DRIVER_OVERRIDE
+unset SESSION_MANAGER DBUS_SESSION_BUS_ADDRESS DBUS_STARTER_ADDRESS DBUS_STARTER_BUS_TYPE
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+if [ ! -d "$XDG_CONFIG_HOME/xfce4" ]; then
+ cp -a "$HOME/.config/xfce4" "$XDG_CONFIG_HOME/xfce4"
+ for item in gtk-3.0 fcitx5; do
+  [ ! -d "$HOME/.config/$item" ] || cp -a "$HOME/.config/$item" "$XDG_CONFIG_HOME/$item"
+ done
+ [ ! -f "$HOME/.config/mimeapps.list" ] || cp -a "$HOME/.config/mimeapps.list" "$XDG_CONFIG_HOME/mimeapps.list"
+fi
+mkdir -p "$XDG_CONFIG_HOME/autostart"
+[ ! -f "$HOME/.config/autostart/fcitx5.desktop" ] || cp -a "$HOME/.config/autostart/fcitx5.desktop" "$XDG_CONFIG_HOME/autostart/"
+for item in user-dirs.dirs user-dirs.locale; do
+ [ ! -f "$HOME/.config/$item" ] || cp -a "$HOME/.config/$item" "$XDG_CONFIG_HOME/$item"
+done
+printf '[Desktop Entry]\nType=Application\nName=Tracker disabled for GPU desktop\nHidden=true\n' > "$XDG_CONFIG_HOME/autostart/tracker-miner-fs-3.desktop"
+exec dbus-run-session -- /bin/bash -c '
+ xfconf-query -c xfwm4 -p /general/use_compositing -s false
+ xfconf-query -c xfwm4 -p /general/box_move -s true
+ xfconf-query -c xfwm4 -p /general/box_resize -s true
+ xfconf-query -c xfce4-session -p /general/SaveOnExit -n -t bool -s false 2>/dev/null || xfconf-query -c xfce4-session -p /general/SaveOnExit -s false
+ exec xfce4-session --disable-tcp
+'

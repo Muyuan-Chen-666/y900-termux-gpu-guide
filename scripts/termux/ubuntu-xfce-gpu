@@ -1,0 +1,3 @@
+#!/data/data/com.termux/files/usr/bin/bash
+if [[ ${1:-} == shell ]]; then shift; exec ubuntu-manager gpu-shell "$@"; fi
+exec ubuntu-manager "$@"

@@ -1,0 +1,176 @@
+{
+  "archive_date": "2026-11-09",
+  "timezone": "Asia/Shanghai",
+  "scope": "Scripts and selected GPU/XFCE configuration; not full rootfs; no credentials",
+  "manifest_excludes": [
+    "manifest.json",
+    "SHA256SUMS"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 19595,
+      "sha256": "f0be28c2e0b34d870b981063d36c0338e52cf6a14289d4e4e9336a6fad7f1e9a"
+    },
+    {
+      "path": "config/xfconf/xfce4-session.xml",
+      "bytes": 1414,
+      "sha256": "e67b825f76a09a3e94749f36726371f159aeba20a79ae28d8f6a0691633a9c4e"
+    },
+    {
+      "path": "config/xfconf/xfwm4.xml",
+      "bytes": 5448,
+      "sha256": "58c36cd5e4bb1d174f8dd539bf1663da05c63e1f094a0aaac4cf8f0e61c06989"
+    },
+    {
+      "path": "config/xfconf/xsettings.xml",
+      "bytes": 1977,
+      "sha256": "581fff09627b43c0cde74e7bbf5f9dccad7ab1141c3cb46f540abf02a4fe82ba"
+    },
+    {
+      "path": "evidence/2026-10-17-CPU-GPU.txt",
+      "bytes": 3114,
+      "sha256": "a2bbae0984de8f8a26a8cce46ea8411d12c7b12c60f3d740190e1e4e1cb09075"
+    },
+    {
+      "path": "evidence/2026-10-17-package-origins.txt",
+      "bytes": 2761,
+      "sha256": "02537e5d24e804ff7154fba842762eea7f47d43315057cbe9c2aca771e09a7ab"
+    },
+    {
+      "path": "evidence/2026-10-20-CPU-GPU.txt",
+      "bytes": 3954,
+      "sha256": "774a770ba14158b562ddac8608c9a94f2b240ef8dded2aa7148c8212b0c0d4c2"
+    },
+    {
+      "path": "evidence/2026-10-20-XFCE.png",
+      "bytes": 571999,
+      "sha256": "d91c90b3343c63beb7b9f08a0cd1464a8d8d307d666a5d57c287176a05f1a91a"
+    },
+    {
+      "path": "evidence/2026-10-20-unified-glxgears.txt",
+      "bytes": 6571,
+      "sha256": "b7da7efbb5f96900e4e151572f1a003809e77cf525401799683ec9694c319aab"
+    },
+    {
+      "path": "metadata/Android-selected-state.txt",
+      "bytes": 172,
+      "sha256": "c9e58c41847cc39283971792b597c8748bd144d183e3b845cc54ccb74ef0fa84"
+    },
+    {
+      "path": "metadata/GpuTest-presence.txt",
+      "bytes": 35,
+      "sha256": "67f6aa7f1e94b263eb9c0cb9126539650e82a826a7455414dcb23e1f7b295946"
+    },
+    {
+      "path": "metadata/Termux-X11-preferences.txt",
+      "bytes": 1819,
+      "sha256": "74e73a54e432c61304b2835350101f83162005495e33c5d6b13c506f74ce93da"
+    },
+    {
+      "path": "metadata/Termux-packages.txt",
+      "bytes": 205,
+      "sha256": "a2539fb5e13a97046d9354e5cc17b2c9318d00757487f36aa23615219a217e21"
+    },
+    {
+      "path": "metadata/Ubuntu-identity.txt",
+      "bytes": 515,
+      "sha256": "b97d2da765584788a3ed835ec6ebfb9e91ca5ba00c79359315bd4af6f726a4af"
+    },
+    {
+      "path": "metadata/Ubuntu-packages.txt",
+      "bytes": 350,
+      "sha256": "a6d6765988ba3f024254ec6462d7431c2df410b65a2f40f2b4dfe389b75290e6"
+    },
+    {
+      "path": "metadata/archive-validation.txt",
+      "bytes": 792,
+      "sha256": "821cf76a81b06369c2a98d82d3a29f9e0b9545c5dad65ad16bc1dfb48a412aed"
+    },
+    {
+      "path": "metadata/current-status.txt",
+      "bytes": 172,
+      "sha256": "4447e2150fd37825096a48df20a5e96b862ab807edf46793cc60656cdec295d3"
+    },
+    {
+      "path": "metadata/installed-android-packages.txt",
+      "bytes": 73,
+      "sha256": "5d898b25133263ef8355097ec4a3759ce3c4373120fd4e63387987728496c802"
+    },
+    {
+      "path": "metadata/package-origins.txt",
+      "bytes": 915,
+      "sha256": "8200186508cc788d4dbbd688d30a2222405637449de8ec02336f86d1d4f9b863"
+    },
+    {
+      "path": "metadata/proot-install-help.txt",
+      "bytes": 4581,
+      "sha256": "750091849ae4ff85ebc5109bd9bf8608f4c3ee252d7820454dab2379c0da04e6"
+    },
+    {
+      "path": "observed-device/COMMANDS-before-archive.md",
+      "bytes": 3129,
+      "sha256": "c2666f76719c6171aae2cec844bde9d6bd1ab02f14b14196e14403b343095a3b"
+    },
+    {
+      "path": "observed-device/ubuntu-manager-avnc-unfinished",
+      "bytes": 11312,
+      "sha256": "09daf5ea4394fc149e72f0a0dbfdb6821c8a0e818e1e396561b4f6e102417742"
+    },
+    {
+      "path": "scripts/prepare-ubuntu.sh",
+      "bytes": 1450,
+      "sha256": "cc9ca288b8fee08fd32b907faa1b70e9f077193411637af1f9b8dc4b6bd24543"
+    },
+    {
+      "path": "scripts/restore-x11-baseline.sh",
+      "bytes": 2614,
+      "sha256": "954865e2ae1db9ec68d60e08c0ddcfd75788b104d43142bf21cdd61be8aa102a"
+    },
+    {
+      "path": "scripts/run-gpu-test.sh",
+      "bytes": 965,
+      "sha256": "85ace3fd5ce08ec472cedab89a39b6132a67b71c3388a67e86f3f5f656234bd8"
+    },
+    {
+      "path": "scripts/termux/ubuntu-desktop",
+      "bytes": 74,
+      "sha256": "77a9732cccebef3827d6a9486dec5cab1b215534a15103428823a1343dedc203"
+    },
+    {
+      "path": "scripts/termux/ubuntu-gpu",
+      "bytes": 145,
+      "sha256": "03de12b66eccb772bcf43ac83e3b0050af8a791e1eeaa14e59adb834781b29e4"
+    },
+    {
+      "path": "scripts/termux/ubuntu-manager",
+      "bytes": 7965,
+      "sha256": "69792444550e48e93b8b2555eda07d54f72baeb191b082800fbdc59112145b91"
+    },
+    {
+      "path": "scripts/termux/ubuntu-stop",
+      "bytes": 73,
+      "sha256": "d7a9d92c45424dab334630639df026e91ec390ca7d5fd6b0596e4fff9e5690fa"
+    },
+    {
+      "path": "scripts/termux/ubuntu-xfce-gpu",
+      "bytes": 145,
+      "sha256": "03de12b66eccb772bcf43ac83e3b0050af8a791e1eeaa14e59adb834781b29e4"
+    },
+    {
+      "path": "scripts/ubuntu/start-tablet-gpu",
+      "bytes": 2000,
+      "sha256": "c87f3e7a723bbb272c8683589e7bf13acd20b6300e15b59d05cddd5eb5c8b3fe"
+    },
+    {
+      "path": "scripts/ubuntu/y900-live-session",
+      "bytes": 804,
+      "sha256": "43f05c26c36808fd56dadcc2b2f290e05ee27889ed729e376a9067f3874b45ae"
+    },
+    {
+      "path": "交接给新会话.md",
+      "bytes": 3095,
+      "sha256": "c04a2759cb48ae920cee7f83608a7c1a688db22762dc8a8100df635f3b2b9c34"
+    }
+  ]
+}

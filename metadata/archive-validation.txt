@@ -1,0 +1,16 @@
+Bash syntax OK: scripts/prepare-ubuntu.sh
+Bash syntax OK: scripts/restore-x11-baseline.sh
+Bash syntax OK: scripts/run-gpu-test.sh
+Python syntax OK: observed-device/ubuntu-manager-avnc-unfinished
+XML parse OK: config/xfconf/xfwm4.xml
+XML parse OK: config/xfconf/xfce4-session.xml
+XML parse OK: config/xfconf/xsettings.xml
+Bash syntax OK: scripts/ubuntu/start-tablet-gpu
+Python syntax OK: scripts/ubuntu/y900-live-session
+Bash syntax OK: scripts/termux/ubuntu-stop
+Bash syntax OK: scripts/termux/ubuntu-gpu
+Bash syntax OK: scripts/termux/ubuntu-xfce-gpu
+Bash syntax OK: scripts/termux/ubuntu-desktop
+Python syntax OK: scripts/termux/ubuntu-manager
+Archived baseline matches previously delivered verified manager: True
+No device restore/start/package changes executed during this archival task.

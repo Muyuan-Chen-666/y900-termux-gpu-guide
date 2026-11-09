@@ -1,0 +1,2 @@
+/usr/bin/glmark2
+/usr/bin/glxgears

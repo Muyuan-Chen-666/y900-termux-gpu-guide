@@ -1,0 +1,226 @@
+
+
+
+USAGE
+
+
+
+  proot-distro install [OPTIONS] (IMAGE:TAG or URL or FILE)
+
+
+
+  Aliases: add, i, in, ins
+
+
+
+DESCRIPTION
+
+
+
+  Create a proot container from a given source: Docker image, OCI image
+
+  archive, rootfs tarball or a web URL providing either of supported
+
+  archive file formats.
+
+
+
+  Installation from Docker image require specifying a reference, for
+
+  example 'ubuntu:24.04'. Official images can be specified by name alone
+
+  ('ubuntu'), while user images require the 'user/image' form. If no tag
+
+  (version) specified, the 'latest' will be used instead.
+
+
+
+  By default Docker images will be pulled from Docker Hub. Custom
+
+  registry needs to be specified as part of image reference. Example:
+
+  'ghcr.io/foo/bar:tag'.
+
+
+
+  Layers are cached locally and reused on subsequent installs of the
+
+  same image.
+
+
+
+  Container name is being determined from name of Docker image or rootfs
+
+  archive file. To be able install multiple instances of same
+
+  distribution, you need to override name using a command line option.
+
+
+
+  It is possible to install distribution with architecture that differs
+
+  from your host CPU. In such cases you will need a QEMU user mode
+
+  emulator to be able run it.
+
+
+
+  Private images require authentication. Set the environment variable
+
+  PD_DOCKER_AUTH="user:password" before running the install command.
+
+  Some registries use a personal access token instead of password.
+
+
+
+OPTIONS
+
+
+
+  -h, --help                Show this help.
+
+
+
+  -n, --name [NAME]         Set a custom name for the container. Must
+
+                            start with alphanumeric character and then
+
+                            may contain only latin letters, numbers and
+
+                            special symbols dot, minus, underscore.
+
+                            Default equals to image name without tag and
+
+                            registry prefix.
+
+
+
+  -a, --architecture [ARCH]
+
+                            Override the target CPU architecture.
+
+                            Accepts native names (aarch64, arm, i686,
+
+                            riscv64, x86_64) or Docker platform strings
+
+                            (linux/arm64, linux/amd64, linux/arm/v7,
+
+                            linux/386, linux/riscv64).
+
+
+
+  --allow-insecure          Permit insecure transport: a custom registry
+
+                            served over plain HTTP, or an HTTPS endpoint
+
+                            (registry or download URL) whose TLS
+
+                            certificate is untrusted, expired,
+
+                            self-signed, or for a different hostname.
+
+                            Use only for trusted sources on a network
+
+                            path you control.
+
+
+
+  -q, --quiet               Suppress non-error output.
+
+
+
+EXAMPLES
+
+
+
+  $ proot-distro install ubuntu:24.04
+
+  $ proot-distro install -a x86_64 debian
+
+  $ proot-distro install -n dist https://example.com/rootfs.tar
+
+  $ proot-distro install -n dist ~/rootfs.tgz
+
+
+
+WHERE TO FIND IMAGES
+
+
+
+  PRoot-Distro does not provide images on its behalf. Users must find
+
+  desired distribution image themselves, but without any guarantee that
+
+  particular chosen distribution exists either as Docker image, as
+
+  ordinary rootfs archive or available for CPU architecture of the host.
+
+
+
+  Common web resources where to look for distributions:
+
+
+
+  ▸ Docker Hub: https://hub.docker.com/
+
+  ▸ AWS Gallery: https://gallery.ecr.aws/
+
+  ▸ GitHub GHCR: https://github.com/search (make sure to enable Packages filter)
+
+  ▸ Official website of distribution
+
+
+
+RECOMMENDED IMAGES
+
+
+
+  This list provided just as reference and is not final. Docker Hub and
+
+  other container image registries provide hundreds of builds of bare
+
+  distributions as well as of packaged applications.
+
+
+
+  ▸ alpine:latest
+
+  ▸ archlinux/archlinux:latest
+
+  ▸ danhunsaker/archlinuxarm:latest
+
+  ▸ chimeralinux/chimera:latest
+
+  ▸ debian:stable
+
+  ▸ fedora:latest
+
+  ▸ gentoo/stage3:latest
+
+  ▸ manjarolinux/base:latest
+
+  ▸ nixos/nix:latest
+
+  ▸ opensuse/leap:latest
+
+  ▸ opensuse/tumbleweed:latest
+
+  ▸ rockylinux/rockylinux:latest
+
+  ▸ aclemons/slackware:current
+
+  ▸ termux/termux-docker:latest
+
+  ▸ arfshl/trisquel:latest
+
+  ▸ ubuntu:24.04
+
+  ▸ ghcr.io/void-linux/void-musl:latest
+
+
+
+────────────────────────────────────────────────────────────────────────
+
+PRoot-Distro version '5.3.0' by Termux (@sylirre).
+
+

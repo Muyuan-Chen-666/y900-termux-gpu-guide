@@ -1,0 +1,131 @@
+#!/data/data/com.termux/files/usr/bin/python
+"""Single XFCE/Termux:X11/VirGL desktop manager."""
+import os, sys, pathlib, subprocess, time, signal, json, fcntl
+state=pathlib.Path.home()/'.local/state/y900-xfce-gpu'
+state.mkdir(parents=True,exist_ok=True)
+pidfile=state/'session.json'
+gpustate=pathlib.Path.home()/'.local/state/y900-gpu'
+gpustate.mkdir(parents=True,exist_ok=True)
+prefix=pathlib.Path(os.environ['PREFIX'])
+os.umask(0o077)
+pd=['proot-distro','login','ubuntu','--user','desktop','--shared-tmp','--no-sysvipc','--']
+def call(args,**kw):return subprocess.run(args,**kw)
+def sessions():
+ found=[]
+ for p in pathlib.Path('/proc').iterdir():
+  if not p.name.isdigit():continue
+  try:
+   if (p/'comm').read_text().strip()=='xfce4-session' and b'DISPLAY=:8' in (p/'environ').read_bytes().split(b'\0'):found.append(int(p.name))
+  except OSError:pass
+ return found
+def show():
+ call(['am','start','--user','0','-n','com.termux.x11/com.termux.x11.MainActivity','-d','gpu-test'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+def display_ready():
+ return call(pd+['env','DISPLAY=:8','xdpyinfo'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
+def cmdline(pid):
+ try:return pathlib.Path(f'/proc/{pid}/cmdline').read_bytes()
+ except OSError:return b''
+def virgl_pid():
+ try:
+  p=int((gpustate/'virgl.pid').read_text()); c=cmdline(p)
+  return p if b'virgl_test_server_android' in c and b'y900-gpu-vtest' in c else None
+ except (OSError,ValueError):return None
+def services():
+ if not virgl_pid():
+  with (gpustate/'virgl.log').open('ab') as log:
+   p=subprocess.Popen(['virgl_test_server_android','--angle-vulkan','--socket-path',os.environ['TMPDIR']+'/y900-gpu-vtest'],stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)
+  (gpustate/'virgl.pid').write_text(str(p.pid))
+ if not display_ready():
+  with (gpustate/'x11.log').open('ab') as log:
+   p=subprocess.Popen(['termux-x11',':8','-tag','gpu-test','-extension','MIT-SHM'],stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)
+  (gpustate/'x11.pid').write_text(str(p.pid))
+ for _ in range(15):
+  if virgl_pid() and pathlib.Path(os.environ['TMPDIR']+'/y900-gpu-vtest').is_socket() and display_ready():break
+  time.sleep(1)
+ else:raise RuntimeError('GPU 显示服务未就绪，请运行 ubuntu-manager logs。')
+ if call(['pulseaudio','--check'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode:
+  call(['pulseaudio','--start','--exit-idle-time=-1'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+ modules=call(['pactl','list','short','modules'],capture_output=True,text=True)
+ if modules.returncode==0 and 'module-native-protocol-tcp' not in modules.stdout:
+  call(['pactl','load-module','module-native-protocol-tcp','listen=127.0.0.1','auth-ip-acl=127.0.0.1','port=4713'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+def stop_services():
+ targets=[]
+ p=virgl_pid()
+ if p:targets.append(p)
+ for d in pathlib.Path('/proc').iterdir():
+  if d.name.isdigit() and cmdline(int(d.name)).startswith(b'termux-x11 com.termux.x11 :8 -tag gpu-test'):
+   targets.append(int(d.name))
+ for p in set(targets):
+  try:os.kill(p,signal.SIGTERM)
+  except ProcessLookupError:pass
+ for _ in range(20):
+  if not any(cmdline(p) for p in targets):return
+  time.sleep(.1)
+ raise RuntimeError('部分显示服务尚未退出，请查看日志；未强制结束进程。')
+def start():
+ services()
+ if sessions():show();print('GPU XFCE 已在运行。');return
+ with (state/'desktop.log').open('ab') as log:
+  proc=subprocess.Popen(pd+['/usr/local/bin/start-tablet-gpu'],stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)
+ pidfile.write_text(json.dumps({'pid':proc.pid,'start':pathlib.Path(f'/proc/{proc.pid}/stat').read_text().split(') ',1)[1].split()[19]}))
+ for _ in range(20):
+  if sessions():show();print('GPU XFCE 已启动，请打开 Termux:X11 的 gpu-test 窗口。');return
+  if proc.poll() is not None:break
+  time.sleep(1)
+ raise RuntimeError('桌面未就绪，请运行 ubuntu-manager logs。')
+def session_command(args,gpu=True):
+ pids=sessions()
+ if not pids:raise RuntimeError('请先运行 ubuntu-manager start。')
+ env=dict(x.decode().split('=',1) for x in pathlib.Path(f'/proc/{pids[0]}/environ').read_bytes().split(b'\0') if b'=' in x)
+ keys=['DISPLAY','DBUS_SESSION_BUS_ADDRESS','XDG_RUNTIME_DIR','XDG_CONFIG_HOME','XDG_CACHE_HOME','LANG','PULSE_SERVER','GTK_IM_MODULE','QT_IM_MODULE','XMODIFIERS','SDL_IM_MODULE','GDK_BACKEND','NO_AT_BRIDGE']
+ settings=[k+'='+env[k] for k in keys if k in env]
+ settings+=['GALLIUM_DRIVER=virpipe','VTEST_SOCKET_NAME=/tmp/y900-gpu-vtest'] if gpu else ['LIBGL_ALWAYS_SOFTWARE=1','GALLIUM_DRIVER=llvmpipe']
+ return call(pd+['env','-u','LIBGL_ALWAYS_SOFTWARE','-u','MESA_GL_VERSION_OVERRIDE','-u','MESA_GLSL_VERSION_OVERRIDE','-u','MESA_LOADER_DRIVER_OVERRIDE']+settings+args).returncode
+def stop():
+ try:
+  d=json.loads(pidfile.read_text());p=d['pid'];path=pathlib.Path(f'/proc/{p}')
+  st=(path/'stat').read_text().split(') ',1)[1].split()[19]
+  cmd=(path/'cmdline').read_bytes()
+  if st!=d['start'] or b'start-tablet-gpu' not in cmd or os.getpgid(p)!=p:raise RuntimeError('进程标识不匹配，未停止任何进程。')
+  os.killpg(p,signal.SIGTERM)
+  for _ in range(30):
+   if not sessions():break
+   time.sleep(.2)
+  else:raise RuntimeError('桌面尚未退出，未停止显示服务。')
+ except FileNotFoundError:
+  if sessions():raise RuntimeError('找不到对应管理进程，未结束当前桌面。')
+ stop_services()
+ print('GPU XFCE 与对应 X11/VirGL 服务已停止。')
+action=sys.argv[1] if len(sys.argv)>1 else 'help'
+try:
+ lock=(state/'control.lock').open('a')
+ if action in ('start','stop','restart','x11'):fcntl.flock(lock,fcntl.LOCK_EX)
+ if action in ('start','x11'):start()
+ elif action=='restart':stop();start()
+ elif action=='connect':
+  if not sessions():raise RuntimeError('桌面未运行，请先执行 ubuntu-manager start。')
+  show();print('请打开 Termux:X11 的 gpu-test 窗口。')
+ elif action in ('status','info'):
+  print('GPU XFCE：'+('运行中' if sessions() else '未运行'))
+  print('显示：Termux:X11 :8 / gpu-test；绘图：Virpipe → ANGLE → Mali；不启动 VNC。')
+  print('VirGL：'+('运行中' if virgl_pid() else '未运行'))
+ elif action=='stop':stop()
+ elif action=='logs':
+  for f in [state/'desktop.log',gpustate/'virgl.log',gpustate/'x11.log']:
+   if f.exists():print(str(f),flush=True);call(['tail','-30',str(f)])
+ elif action=='shell':
+  os.execvp('proot-distro',['proot-distro','login','ubuntu','--shared-tmp','--no-sysvipc','--','/bin/bash'])
+ elif action in ('run','software','gpu-shell','test'):
+  if action=='gpu-shell':args=['/bin/bash','--noprofile','--norc']
+  elif action=='test':args=['timeout','--kill-after=3s','60s','glmark2','--size','800x600','--benchmark','build:duration=5','--benchmark','texture:duration=5','--benchmark','shading:duration=5']
+  else:args=sys.argv[2:]
+  if not args:raise RuntimeError('请提供要运行的程序。')
+  sys.exit(session_command(args,action!='software'))
+ elif action=='size':
+  if len(sys.argv)!=3:raise RuntimeError('用法：ubuntu-manager size 1600x1067')
+  import re
+  if not re.fullmatch(r'[0-9]{3,4}x[0-9]{3,4}',sys.argv[2]):raise RuntimeError('分辨率格式错误。')
+  sys.exit(call(['termux-x11-preference','displayResolutionMode:custom','displayResolutionCustom:'+sys.argv[2]]).returncode)
+ elif action=='passwd':raise RuntimeError('当前仅使用 Termux:X11，不再使用 VNC 密码。')
+ else:print('用法：ubuntu-manager start | connect | status | stop | restart | logs | shell | gpu-shell | run 程序 | software 程序 | test | size 宽x高\n统一使用 Termux:X11 :8 + GPU。停止或重启前先保存桌面工作。shell 为安装软件的管理员终端；gpu-shell 为普通用户图形终端。')
+except (RuntimeError,subprocess.CalledProcessError,OSError,ValueError) as e:print(str(e),file=sys.stderr);sys.exit(1)

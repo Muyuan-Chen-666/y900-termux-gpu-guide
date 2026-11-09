@@ -1,0 +1,6 @@
+ro.product.model=TB711FU
+ro.build.version.release=17
+ro.product.cpu.abi=arm64-v8a
+ro.build.display.id=TB711FU_CN_OPEN_USER_M15.43_A17_ZUXOS_2.5.11.101_ST_260924
+null
+false

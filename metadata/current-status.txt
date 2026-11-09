@@ -1,0 +1,4 @@
+GPU XFCE：未运行
+显示：Termux:X11 :8 / gpu-test；绘图：Virpipe → ANGLE → Mali；AVNC 共享同一桌面。
+VirGL：未运行
+AVNC 127.0.0.1:5901：未运行

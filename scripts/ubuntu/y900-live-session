@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+import os,pathlib,subprocess,sys
+if not os.environ.get('DBUS_SESSION_BUS_ADDRESS'):
+ for pid in subprocess.run(['pgrep','-x','xfce4-session'],capture_output=True,text=True).stdout.split():
+  try:
+   e=dict(x.decode().split('=',1) for x in pathlib.Path(f'/proc/{pid}/environ').read_bytes().split(b'\0') if b'=' in x)
+   if e.get('DISPLAY')==':8':
+    for k in ['DISPLAY','DBUS_SESSION_BUS_ADDRESS','XDG_RUNTIME_DIR','PULSE_SERVER','XDG_CONFIG_HOME','XDG_CACHE_HOME','GALLIUM_DRIVER','VTEST_SOCKET_NAME']:
+     if k in e:os.environ[k]=e[k]
+    break
+  except (OSError,UnicodeError):pass
+os.environ.setdefault('DISPLAY',':8')
+os.environ.update(LANG='zh_CN.UTF-8',GTK_IM_MODULE='fcitx',QT_IM_MODULE='fcitx',XMODIFIERS='@im=fcitx',SDL_IM_MODULE='fcitx')
+os.execvp(sys.argv[1],sys.argv[1:])
