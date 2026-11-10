@@ -100,10 +100,12 @@ bash scripts/restore-x11-baseline.sh
 ### 3.4 启动桌面并做冒烟测试
 
 ```sh
-ubuntu-manager start
-ubuntu-manager status
-bash scripts/run-gpu-test.sh smoke
+y900 start          # 等价于 ubuntu-manager start
+y900 status
+y900 test           # 等价于 glmark2 三场景冒烟
 ```
+
+`y900` 是随脚本一起安装的短命令入口（完整清单见 [Termux + PRoot 常用指令表](docs/11-Termux与Proot常用指令表.md)），底层仍调用 `ubuntu-manager`。
 
 再打开 Android 上的 **Termux:X11** 应用，进入 `gpu-test` 窗口。系统可能阻止应用后台自动拉起窗口，手动切换即可；**不要因为没自动跳转就重复创建新桌面**。
 
@@ -141,6 +143,7 @@ GL_VERSION  = 2.1 Mesa 25.2.8-0ubuntu0.24.04.4
 │   ├── 08-历史验证记录.md        # 2026-10-17 / 10-20 的证据与分数
 │   ├── 09-交接给新会话.md        # 可直接粘贴给新 AI 会话的说明
 │   ├── 10-实机复现记录.md        # 2026-11-10 另一台 Y900 真实复现：新版本两处适配与验收
+│   ├── 11-Termux与Proot常用指令表.md  # y900 短命令、容器/GPU/排错速查
 │   └── history/                  # 归档时的历史材料（只作参考）
 ├── scripts/
 │   ├── termux/                   # 装到 Termux $PREFIX/bin 的管理器与转发入口
@@ -223,6 +226,7 @@ GL_VERSION  = 2.1 Mesa 25.2.8-0ubuntu0.24.04.4
 | AVNC 到底做到哪一步 | [07-AVNC实验边界](docs/07-AVNC实验边界.md) |
 | 历史测试数据与结论边界 | [08-历史验证记录](docs/08-历史验证记录.md) |
 | 把任务交给新的 AI 会话 | [09-交接给新会话](docs/09-交接给新会话.md) |
+| 查 Termux/容器/GPU 快捷命令 | [11-Termux与Proot常用指令表](docs/11-Termux与Proot常用指令表.md) |
 
 ---
 

@@ -1,0 +1,82 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# y900 —— ubuntu-manager 的短命令封装，仅做入口，不改变底层流程。
+set -u
+
+CMD=${1:-help}
+[ $# -gt 0 ] && shift
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'y900: %s\n' "$*" >&2; exit 1; }
+
+desktop_running() {
+  ubuntu-manager status 2>/dev/null | head -n 1 | grep -q '运行中'
+}
+
+need_desktop() {
+  desktop_running || die '桌面未运行，请先执行：y900 start'
+}
+
+usage() {
+  cat <<'EOF'
+y900 —— Y900 的 Termux + Ubuntu GPU 桌面快捷命令
+
+  y900 start            启动 GPU 桌面（VirGL + Termux:X11 :8/gpu-test + XFCE）
+  y900 stop             停止桌面与 X11/VirGL 服务（先保存桌面里的工作）
+  y900 restart          重启桌面
+  y900 status           查看桌面 / VirGL / 显示状态
+  y900 open             打开或切到 Termux:X11 的 gpu-test 窗口
+  y900 test             跑 glmark2 三场景（build / texture / shading，各 5 秒）
+  y900 gears            跑 glxgears -info（目视确认齿轮与 renderer）
+  y900 shell            进入 ubuntu 容器（管理员 shell）
+  y900 desk             进入容器的图形用户终端（desktop 用户，带显示与 GPU 环境）
+  y900 logs             查看最近的桌面 / VirGL / X11 日志
+  y900 size 1600x1067   设置 Termux:X11 显示分辨率
+  y900 check            检查 Termux 与容器内依赖是否齐全
+  y900 help             显示本帮助
+
+绘图：virpipe → VirGL socket → ANGLE Vulkan → Mali-G925
+显示：DISPLAY=:8（Termux:X11 的 gpu-test 窗口）
+两者相互独立：DISPLAY 可用不代表已走 GPU，验收请看 renderer。
+EOF
+}
+
+case "$CMD" in
+  start|s)             exec ubuntu-manager start ;;
+  stop)                exec ubuntu-manager stop ;;
+  restart|r)           exec ubuntu-manager restart ;;
+  status|st|info)      exec ubuntu-manager status ;;
+  open|show|connect|x11) exec ubuntu-manager connect ;;
+  test)
+    need_desktop
+    exec ubuntu-manager test ;;
+  gears)
+    need_desktop
+    exec ubuntu-manager run glxgears -info ;;
+  shell|root)          exec ubuntu-manager shell ;;
+  desk|gpu-shell)      exec ubuntu-manager gpu-shell ;;
+  logs)                exec ubuntu-manager logs ;;
+  size|res)
+    [ $# -eq 1 ] || die '用法：y900 size 宽x高（例如 y900 size 1600x1067）'
+    exec ubuntu-manager size "$1" ;;
+  check)
+    rc=0
+    for c in proot-distro termux-x11 virgl_test_server_android pulseaudio pactl; do
+      if command -v "$c" >/dev/null 2>&1; then say "OK      $c"; else say "MISSING $c"; rc=1; fi
+    done
+    if [ -d "$PREFIX/var/lib/proot-distro/containers/ubuntu" ]; then
+      say 'OK      ubuntu 容器'
+    else
+      say 'MISSING ubuntu 容器'; rc=1
+    fi
+    for c in glmark2 glxgears glxinfo xdpyinfo; do
+      if proot-distro login ubuntu --shared-tmp --no-sysvipc -- bash -lc "command -v $c" >/dev/null 2>&1; then
+        say "OK      $c（容器内）"
+      else
+        say "MISSING $c（容器内）"; rc=1
+      fi
+    done
+    if [ "$rc" -eq 0 ]; then say '依赖检查通过。'; else say '存在缺失项，请先补齐依赖。'; fi
+    exit "$rc" ;;
+  help|-h|--help)      usage ;;
+  *)                   usage; exit 2 ;;
+esac
